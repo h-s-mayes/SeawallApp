@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Biodiversity Survey App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4 font-sans pb-12">
+
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 mt-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Species Survey</h2>
+
+    <form id="uploadForm" class="space-y-6">
+      
+      <!-- Passcode Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Access Passcode</label>
+        <input type="password" id="passcodeInput" required placeholder="Enter team passcode"
+               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+      </div>
+
+      <!-- Photo Capture -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Site Photo (this will open your camera)</label>
+        <input type="file" id="imageInput" accept="image/*" capture="environment" required
+               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+        <img id="imagePreview" class="mt-3 rounded-md w-full hidden object-cover" style="max-height: 250px;" />
+      </div>
+
+      <!-- Location & Station Info -->
+      <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+        <h3 class="font-bold text-gray-700 border-b pb-1 mb-3">Location & Station Info</h3>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phase</label>
+            <select id="phaseInput" required class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm">
+              <option value="" disabled selected>Select...</option>
+              <option value="P2021">P2021</option>
+              <option value="P2022">P2022</option>
+              <option value="P2023">P2023</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Station</label>
+            <select id="stationInput" required class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm">
+              <option value="" disabled selected>Select...</option>
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+              <option value="S3">S3</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Replicate Vertical Line</label>
+          <select id="verticalLineInput" required class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm">
+            <option value="" disabled selected>Select line...</option>
+            <option value="EF1">EF1</option>
+            <option value="EF2">EF2</option>
+            <option value="EF3">EF3</option>
+            <option value="SM1">SM1</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Bearing</label>
+            <input type="text" id="bearingInput" required placeholder="180°"
+                   class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Latitude</label>
+            <input type="number" step="any" id="latitudeInput" required placeholder="50.79"
+                   class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Longitude</label>
+            <input type="number" step="any" id="longitudeInput" required placeholder="-1.09"
+                   class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+          </div>
+        </div>
+      </div>
+
+      <!-- Quadrat Details -->
+      <div class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+        <h3 class="font-bold text-yellow-800 border-b border-yellow-200 pb-1 mb-3">Quadrat Details</h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Quadrat (e.g. 6m)</label>
+            <input type="text" id="quadratInput" required placeholder="6m"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Replicate</label>
+            <input type="text" id="replicateInput" required placeholder="1 of 3"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ledge Position</label>
+            <select id="ledgeInput" required class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm" onchange="toggleLedgeHeight()">
+              <option value="" disabled selected>Select...</option>
+              <option value="Above the ledge">Above the ledge</option>
+              <option value="Below the ledge">Below the ledge</option>
+            </select>
+          </div>
+          <div id="ledgeHeightContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Height</label>
+            <select id="ledgeHeightInput" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white shadow-sm">
+              <option value="" disabled selected>Select...</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animals Section -->
+      <div class="bg-blue-50 p-4 rounded-md border border-blue-100">
+        <h3 class="font-bold text-blue-800 mb-3 border-b border-blue-200 pb-1">Animals (Count)</h3>
+        <div id="animalContainer" class="space-y-2"></div>
+        <button type="button" onclick="addCustomRow('animalContainer', 'number', 'Count')" 
+                class="mt-3 text-sm text-blue-600 font-semibold hover:text-blue-800 flex items-center">
+          + Add another animal species
+        </button>
+      </div>
+
+      <!-- Plants Section -->
+      <div class="bg-green-50 p-4 rounded-md border border-green-100">
+        <h3 class="font-bold text-green-800 mb-3 border-b border-green-200 pb-1">Plants (Coverage %)</h3>
+        <div id="plantContainer" class="space-y-2"></div>
+        <button type="button" onclick="addCustomRow('plantContainer', 'text', 'Coverage (e.g. 50%)')" 
+                class="mt-3 text-sm text-green-600 font-semibold hover:text-green-800 flex items-center">
+          + Add another plant species
+        </button>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="bg-white p-4 rounded-md border border-gray-200">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Any other notes</label>
+        <textarea id="notesInput" rows="3" placeholder="Enter any additional observations here..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submitBtn" 
+              class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 mt-4 shadow-lg">
+        Submit Survey Data
+      </button>
+
+      <div id="statusMessage" class="text-center font-medium mt-2 hidden"></div>
+    </form>
+  </div>
+
+  <script>
+    // --- PASTE SCRIPT URL HERE ---
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbzfGR8iBpGyWWoPZbXsMbD535XNGWxKZWGt6pS6C4kGbHJKLLQJ3hKSrFjYpwXIVeHerA/exec";
+    let base64ImageString = "";
+
+    // Load saved passcode
+    const savedPasscode = localStorage.getItem('survey_app_passcode');
+    if (savedPasscode) document.getElementById('passcodeInput').value = savedPasscode;
+
+    // Toggle Ledge Height Logic
+    function toggleLedgeHeight() {
+      const ledgePos = document.getElementById('ledgeInput').value;
+      const heightContainer = document.getElementById('ledgeHeightContainer');
+      const heightInput = document.getElementById('ledgeHeightInput');
+      
+      if (ledgePos === 'Below the ledge') {
+        heightContainer.classList.remove('hidden');
+        heightInput.required = true;
+      } else {
+        heightContainer.classList.add('hidden');
+        heightInput.required = false;
+        heightInput.value = ""; 
+      }
+    }
+
+    // Default Species Lists
+    const defaultAnimals = [
+      "Hydrobia spp.", "Littorina littorea", "Littorina saxatilis", 
+      "Talitrus saltator", "Anurida maritima", "Fucoid Germling"
+    ];
+    
+    const defaultPlants = [
+      "Rhizoclonium riparium?", "Ulva intestinalis", "Ulva lactuca", 
+      "Fucus (spp.)", "Fucus vesiculosus", "Fucus spiralis", "Saccharina latissima"
+    ];
+
+    // Function to inject preset rows into the HTML
+    function generatePresetRows(containerId, speciesList, inputType, placeholder) {
+      const container = document.getElementById(containerId);
+      speciesList.forEach(species => {
+        const row = document.createElement('div');
+        row.className = `flex space-x-2 ${containerId === 'animalContainer' ? 'animal-row' : 'plant-row'}`;
+        row.innerHTML = `
+          <input type="text" class="species-name w-1/2 px-2 py-1 border border-gray-300 rounded-md bg-gray-50 text-sm" value="${species}" readonly>
+          <input type="${inputType}" class="species-value w-1/2 px-2 py-1 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 text-sm" placeholder="${placeholder}">
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Function to add a blank custom row
+    function addCustomRow(containerId, inputType, placeholder) {
+      const container = document.getElementById(containerId);
+      const row = document.createElement('div');
+      row.className = `flex space-x-2 ${containerId === 'animalContainer' ? 'animal-row' : 'plant-row'}`;
+      row.innerHTML = `
+        <input type="text" class="species-name w-1/2 px-2 py-1 border border-blue-400 rounded-md focus:ring-blue-500 text-sm" placeholder="Custom Species">
+        <input type="${inputType}" class="species-value w-1/2 px-2 py-1 border border-blue-400 rounded-md focus:ring-blue-500 text-sm" placeholder="${placeholder}">
+      `;
+      container.appendChild(row);
+    }
+
+    // Initialize forms
+    generatePresetRows('animalContainer', defaultAnimals, 'number', 'Count (e.g. 5)');
+    generatePresetRows('plantContainer', defaultPlants, 'text', 'Coverage %');
+
+    // Handle Image
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const imgPreview = document.getElementById('imagePreview');
+          imgPreview.src = e.target.result;
+          imgPreview.classList.remove('hidden');
+          base64ImageString = e.target.result.split(',')[1];
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Extract data
+    function collectData(rowClass) {
+      let results = [];
+      document.querySelectorAll(`.${rowClass}`).forEach(row => {
+        let name = row.querySelector('.species-name').value.trim();
+        let val = row.querySelector('.species-value').value.trim();
+        if (name !== "" && val !== "" && val !== "0") {
+          results.push(`${name}: ${val}`);
+        }
+      });
+      return results.join('\n') || "None recorded";
+    }
+
+    // Form Submit
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const statusMessage = document.getElementById('statusMessage');
+      const passcode = document.getElementById('passcodeInput').value;
+      
+      if (!base64ImageString) return alert("Please take a photo first.");
+
+      localStorage.setItem('survey_app_passcode', passcode);
+
+      const payload = {
+        passcode: passcode,
+        phase: document.getElementById('phaseInput').value,
+        station: document.getElementById('stationInput').value,
+        verticalLine: document.getElementById('verticalLineInput').value,
+        bearing: document.getElementById('bearingInput').value,
+        latitude: document.getElementById('latitudeInput').value,
+        longitude: document.getElementById('longitudeInput').value,
+        quadrat: document.getElementById('quadratInput').value,
+        replicate: document.getElementById('replicateInput').value,
+        ledgePosition: document.getElementById('ledgeInput').value,
+        ledgeHeight: document.getElementById('ledgeHeightInput').value,
+        animals: collectData('animal-row'),
+        plants: collectData('plant-row'),
+        notes: document.getElementById('notesInput').value,
+        image: base64ImageString
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Uploading...";
+      statusMessage.classList.add('hidden');
+
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        statusMessage.innerText = "Survey Data Submitted Successfully!";
+        statusMessage.className = "text-center font-medium mt-2 text-green-600";
+        
+        setTimeout(() => {
+          document.getElementById('uploadForm').reset();
+          document.getElementById('imagePreview').classList.add('hidden');
+          base64ImageString = "";
+          document.getElementById('passcodeInput').value = passcode; 
+          document.getElementById('ledgeHeightContainer').classList.add('hidden');
+        }, 2000);
+
+      } catch (error) {
+        statusMessage.innerText = "Upload Failed. Check connection.";
+        statusMessage.className = "text-center font-medium mt-2 text-red-600";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit Survey Data";
+        statusMessage.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
